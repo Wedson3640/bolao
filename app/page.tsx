@@ -583,191 +583,65 @@ export default function BolaoPage() {
               </button>
             </div>
 
-            <div className="px-6 py-5 flex flex-col gap-5">
+            <div className="px-6 py-5 flex flex-col gap-4">
 
+              {/* ── ETAPA 1: Formulário ── */}
               {!apostaEnviada ? (
                 <>
-                  {/* Formulário */}
-                  <div className="flex flex-col gap-3">
-                    <div>
-                      <label className="text-xs text-gray-500 font-bold block mb-1 uppercase tracking-wide">
-                        👤 Seu nome
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Digite seu nome completo"
-                        value={apostaNome}
-                        onChange={(e) => setApostaNome(e.target.value)}
-                        className="w-full border-2 border-gray-200 focus:border-green-500 rounded-xl px-4 py-2.5 text-gray-800 outline-none transition-colors"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-xs text-gray-500 font-bold block mb-2 uppercase tracking-wide">
-                        ⚽ Seu palpite de placar
-                      </label>
-                      <div className="flex items-center gap-3">
-                        {/* Brasil */}
-                        <div className="flex-1 flex flex-col items-center gap-1">
-                          <Image
-                            src="https://flagcdn.com/w40/br.png"
-                            alt="Brasil"
-                            width={36}
-                            height={24}
-                            className="rounded shadow"
-                            unoptimized
-                          />
-                          <span className="text-xs font-bold text-gray-600">Brasil</span>
-                          <input
-                            type="number"
-                            min="0"
-                            max="20"
-                            placeholder="0"
-                            value={apostaBrasil}
-                            onChange={(e) => setApostaBrasil(e.target.value)}
-                            className="w-full border-2 border-green-300 focus:border-green-600 rounded-xl px-3 py-2 text-center text-xl font-black text-green-800 outline-none"
-                          />
-                        </div>
-
-                        <span className="text-gray-400 font-black text-2xl pb-4">×</span>
-
-                        {/* Haiti */}
-                        <div className="flex-1 flex flex-col items-center gap-1">
-                          <Image
-                            src="https://flagcdn.com/w40/ht.png"
-                            alt="Haiti"
-                            width={36}
-                            height={24}
-                            className="rounded shadow"
-                            unoptimized
-                          />
-                          <span className="text-xs font-bold text-gray-600">Haiti</span>
-                          <input
-                            type="number"
-                            min="0"
-                            max="20"
-                            placeholder="0"
-                            value={apostaHaiti}
-                            onChange={(e) => setApostaHaiti(e.target.value)}
-                            className="w-full border-2 border-blue-200 focus:border-blue-500 rounded-xl px-3 py-2 text-center text-xl font-black text-blue-700 outline-none"
-                          />
-                        </div>
-                      </div>
-                    </div>
+                  {/* Nome */}
+                  <div>
+                    <label className="text-xs text-gray-500 font-bold block mb-1 uppercase tracking-wide">
+                      👤 Seu nome
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Digite seu nome completo"
+                      value={apostaNome}
+                      onChange={(e) => setApostaNome(e.target.value)}
+                      className="w-full border-2 border-gray-200 focus:border-green-500 rounded-xl px-4 py-2.5 text-gray-800 outline-none transition-colors"
+                    />
                   </div>
 
-                  {/* Divisor */}
-                  <hr className="border-gray-200" />
-
-                  {/* PIX */}
-                  <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
-                    <p className="text-green-800 font-black text-sm mb-1">💸 Realize o pagamento via PIX</p>
-                    <p className="text-gray-500 text-xs mb-3">
-                      Valor: <strong className="text-green-700">R$ 5,00</strong> — após pagar, seu status será confirmado pelo admin.
-                    </p>
-
-                    {/* QR Code */}
-                    <div className="flex justify-center mb-3">
-                      <div className="bg-white p-2 rounded-xl border-2 border-green-300 inline-block shadow">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={QR_PIX_URL}
-                          alt="QR Code PIX"
-                          width={160}
-                          height={160}
-                          className="block"
+                  {/* Placar */}
+                  <div>
+                    <label className="text-xs text-gray-500 font-bold block mb-2 uppercase tracking-wide">
+                      ⚽ Seu palpite de placar
+                    </label>
+                    <div className="flex items-center gap-3">
+                      {/* Brasil */}
+                      <div className="flex-1 flex flex-col items-center gap-1">
+                        <Image src="https://flagcdn.com/w40/br.png" alt="Brasil" width={36} height={24} className="rounded shadow" unoptimized />
+                        <span className="text-xs font-bold text-gray-600">Brasil</span>
+                        <input
+                          type="number" min="0" max="20" placeholder="0"
+                          value={apostaBrasil}
+                          onChange={(e) => setApostaBrasil(e.target.value)}
+                          className="w-full border-2 border-green-300 focus:border-green-600 rounded-xl px-3 py-2 text-center text-xl font-black text-green-800 outline-none"
+                        />
+                      </div>
+                      <span className="text-gray-400 font-black text-2xl pb-4">×</span>
+                      {/* Haiti */}
+                      <div className="flex-1 flex flex-col items-center gap-1">
+                        <Image src="https://flagcdn.com/w40/ht.png" alt="Haiti" width={36} height={24} className="rounded shadow" unoptimized />
+                        <span className="text-xs font-bold text-gray-600">Haiti</span>
+                        <input
+                          type="number" min="0" max="20" placeholder="0"
+                          value={apostaHaiti}
+                          onChange={(e) => setApostaHaiti(e.target.value)}
+                          className="w-full border-2 border-blue-200 focus:border-blue-500 rounded-xl px-3 py-2 text-center text-xl font-black text-blue-700 outline-none"
                         />
                       </div>
                     </div>
-                    <p className="text-center text-xs text-gray-400 mb-3">📷 Aponte a câmera do celular para o QR Code</p>
-
-                    {/* Copia e cola */}
-                    <p className="text-xs text-gray-500 font-semibold mb-1">Ou copie o código PIX Copia e Cola:</p>
-                    <div className="flex items-center gap-2 bg-white border-2 border-green-300 rounded-xl px-3 py-2">
-                      <span className="flex-1 text-gray-500 font-mono text-xs truncate select-all">
-                        {PAYLOAD_PIX.slice(0, 40)}…
-                      </span>
-                      <button
-                        onClick={copiarPix}
-                        className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
-                          apostaCopied
-                            ? "bg-green-500 text-white"
-                            : "bg-green-600 hover:bg-green-700 text-white"
-                        }`}
-                      >
-                        {apostaCopied ? "✅ Copiado!" : "📋 Copiar"}
-                      </button>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1.5 text-center">
-                      Chave: <strong className="text-gray-600">{CHAVE_PIX}</strong>
-                    </p>
                   </div>
 
-                  {/* Divisor */}
-                  <hr className="border-gray-200" />
-
-                  {/* Regras */}
-                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-                    <p className="text-amber-800 font-black text-sm mb-3 flex items-center gap-1">
-                      📜 Regras do Bolão
-                    </p>
-                    <ul className="text-gray-600 text-xs space-y-2 leading-relaxed">
-                      <li className="flex gap-2">
-                        <span>💰</span>
-                        <span>O valor de cada cota é de <strong>R$ 5,00</strong>, pago via PIX antes do jogo.</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <span>🏆</span>
-                        <span>
-                          <strong>25% da arrecadação total</strong> vai para o administrador do bolão pela organização.
-                        </span>
-                      </li>
-                      <li className="flex gap-2">
-                        <span>🎉</span>
-                        <span>
-                          Os <strong>75% restantes</strong> são rateados igualmente entre todos os ganhadores que acertarem o placar exato <strong>e que realizaram o pagamento via PIX</strong>.
-                        </span>
-                      </li>
-                      <li className="flex gap-2">
-                        <span>⚠️</span>
-                        <span>
-                          Apostas com pagamento <strong>pendente</strong> não concorrem ao prêmio, mesmo que acertem o placar.
-                        </span>
-                      </li>
-                      <li className="flex gap-2">
-                        <span>📅</span>
-                        <span>
-                          O prazo para apostar e pagar encerra <strong>19/06/2025 às 21h00</strong>, 30 minutos antes do jogo.
-                        </span>
-                      </li>
-                    </ul>
-
-                    {/* Exemplo com valores dinâmicos */}
-                    <div className="mt-3 bg-white rounded-xl border border-amber-200 px-3 py-2 text-xs text-gray-500">
-                      <p className="font-bold text-amber-700 mb-1">📊 Exemplo com {participantes.filter(p => p.pago).length} pagantes:</p>
-                      <div className="flex justify-between">
-                        <span>Total arrecadado:</span>
-                        <strong>R$ {participantes.filter(p => p.pago).length * 5},00</strong>
-                      </div>
-                      <div className="flex justify-between text-green-700">
-                        <span>Admin (25%):</span>
-                        <strong>R$ {(participantes.filter(p => p.pago).length * 5 * 0.25).toFixed(2)}</strong>
-                      </div>
-                      <div className="flex justify-between text-blue-700">
-                        <span>Para os ganhadores (75%):</span>
-                        <strong>R$ {(participantes.filter(p => p.pago).length * 5 * 0.75).toFixed(2)}</strong>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Botão enviar */}
-                  {/* Mensagem de erro */}
+                  {/* Erro */}
                   {apostaErro && (
                     <div className="bg-red-50 border border-red-300 text-red-700 text-sm font-semibold px-4 py-2 rounded-xl text-center">
                       ⚠️ {apostaErro}
                     </div>
                   )}
 
+                  {/* Botão Confirmar */}
                   <button
                     onClick={enviarAposta}
                     disabled={!apostaNome.trim() || !apostaBrasil || !apostaHaiti || apostaEnviando}
@@ -786,42 +660,68 @@ export default function BolaoPage() {
                     )}
                   </button>
                 </>
+
               ) : (
-                /* Tela de sucesso */
-                <div className="flex flex-col items-center gap-4 py-4 text-center">
-                  <span className="text-6xl">🎉</span>
-                  <h4 className="text-green-700 font-black text-xl">Aposta registrada!</h4>
-                  <p className="text-gray-500 text-sm">
-                    <strong>{apostaNome}</strong>, seu palpite de{" "}
-                    <strong className="text-green-700">Brasil {apostaBrasil}</strong>
-                    {" × "}
-                    <strong className="text-blue-700">Haiti {apostaHaiti}</strong>
-                    {" "}foi adicionado à planilha.
-                  </p>
-                  <div className="bg-orange-50 border border-orange-200 rounded-xl px-4 py-3 text-sm text-orange-700 font-semibold">
-                    ⏳ Lembre-se de pagar o PIX de <strong>R$ 5,00</strong> para concorrer!
+                /* ── ETAPA 2: Pagamento ── */
+                <div className="flex flex-col gap-4">
+
+                  {/* Confirmação */}
+                  <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 flex flex-col items-center gap-1 text-center">
+                    <span className="text-3xl">🎉</span>
+                    <p className="text-green-700 font-black text-base">Aposta confirmada!</p>
+                    <p className="text-gray-500 text-sm">
+                      <strong>{apostaNome}</strong> —{" "}
+                      <strong className="text-green-700">Brasil {apostaBrasil}</strong>
+                      {" × "}
+                      <strong className="text-blue-700">Haiti {apostaHaiti}</strong>
+                    </p>
                   </div>
 
-                  {/* QR Code na tela de sucesso */}
-                  <div className="bg-green-50 border border-green-200 rounded-2xl p-4 w-full flex flex-col items-center gap-3">
+                  {/* PIX */}
+                  <div className="bg-white border-2 border-green-300 rounded-2xl p-4 flex flex-col items-center gap-3">
+                    <p className="text-green-800 font-black text-sm">💸 Agora realize o pagamento via PIX</p>
+                    <p className="text-gray-500 text-xs text-center">
+                      Valor: <strong className="text-green-700">R$ 5,00</strong> — seu status será confirmado pelo admin após o pagamento.
+                    </p>
+                    {/* QR Code */}
                     <div className="bg-white p-2 rounded-xl border-2 border-green-300 shadow">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={QR_PIX_URL} alt="QR Code PIX" width={150} height={150} />
+                      <img src={QR_PIX_URL} alt="QR Code PIX" width={170} height={170} />
                     </div>
-                    <p className="text-xs text-gray-400">📷 Escaneie para pagar R$ 5,00</p>
-                    <div className="flex items-center gap-2 bg-white border-2 border-green-300 rounded-xl px-3 py-2 w-full">
-                      <span className="flex-1 text-gray-500 font-mono text-xs truncate">{PAYLOAD_PIX.slice(0, 36)}…</span>
+                    <p className="text-xs text-gray-400">📷 Escaneie para pagar</p>
+                    {/* Copia e cola */}
+                    <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 w-full">
+                      <span className="flex-1 text-gray-500 font-mono text-xs truncate">{PAYLOAD_PIX.slice(0, 38)}…</span>
                       <button
                         onClick={copiarPix}
                         className={`shrink-0 text-xs font-bold px-3 py-1.5 rounded-lg transition-all ${
                           apostaCopied ? "bg-green-500 text-white" : "bg-green-600 hover:bg-green-700 text-white"
                         }`}
                       >
-                        {apostaCopied ? "✅ Copiado!" : "📋 Copiar PIX"}
+                        {apostaCopied ? "✅ Copiado!" : "📋 Copiar"}
                       </button>
                     </div>
                     <p className="text-xs text-gray-400">Chave: <strong className="text-gray-600">{CHAVE_PIX}</strong></p>
                   </div>
+
+                  {/* Regras */}
+                  <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
+                    <p className="text-amber-800 font-black text-sm mb-2">📜 Regras do Bolão</p>
+                    <ul className="text-gray-600 text-xs space-y-1.5 leading-relaxed">
+                      <li className="flex gap-2"><span>💰</span><span>Cota: <strong>R$ 5,00</strong> pago via PIX antes do jogo.</span></li>
+                      <li className="flex gap-2"><span>🏆</span><span><strong>25%</strong> da arrecadação vai para o admin pela organização.</span></li>
+                      <li className="flex gap-2"><span>🎉</span><span><strong>75%</strong> rateados entre quem acertar o placar exato <strong>e tiver pago</strong>.</span></li>
+                      <li className="flex gap-2"><span>⚠️</span><span>Apostas <strong>pendentes</strong> não concorrem ao prêmio.</span></li>
+                      <li className="flex gap-2"><span>📅</span><span>Prazo: <strong>19/06/2025 às 21h00</strong>.</span></li>
+                    </ul>
+                    <div className="mt-3 bg-white rounded-xl border border-amber-200 px-3 py-2 text-xs text-gray-500">
+                      <p className="font-bold text-amber-700 mb-1">📊 {participantes.filter(p => p.pago).length} pagantes até agora:</p>
+                      <div className="flex justify-between"><span>Arrecadado:</span><strong>R$ {participantes.filter(p => p.pago).length * 5},00</strong></div>
+                      <div className="flex justify-between text-green-700"><span>Admin (25%):</span><strong>R$ {(participantes.filter(p => p.pago).length * 5 * 0.25).toFixed(2)}</strong></div>
+                      <div className="flex justify-between text-blue-700"><span>Ganhadores (75%):</span><strong>R$ {(participantes.filter(p => p.pago).length * 5 * 0.75).toFixed(2)}</strong></div>
+                    </div>
+                  </div>
+
                   <button
                     onClick={fecharApostar}
                     className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2.5 rounded-xl transition-all"
