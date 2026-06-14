@@ -51,6 +51,8 @@ export default function BolaoPage() {
   const [apostaHaiti, setApostaHaiti]       = useState("");
   const [apostaCopied, setApostaCopied]     = useState(false);
   const [apostaEnviada, setApostaEnviada]   = useState(false);
+  const [apostaErro, setApostaErro]         = useState("");
+  const [apostaEnviando, setApostaEnviando] = useState(false);
 
   // ── Buscar participantes do banco ──────────────────────────────
   const buscarParticipantes = useCallback(async () => {
@@ -110,6 +112,8 @@ export default function BolaoPage() {
 
   const enviarAposta = async () => {
     if (!apostaNome.trim() || !apostaBrasil || !apostaHaiti) return;
+    setApostaEnviando(true);
+    setApostaErro("");
     const { data, error } = await supabase
       .from("participantes")
       .insert({
@@ -120,7 +124,13 @@ export default function BolaoPage() {
       })
       .select()
       .single();
-    if (!error && data) setParticipantes((prev) => [...prev, fromDB(data)]);
+    setApostaEnviando(false);
+    if (error) {
+      setApostaErro("Erro ao salvar aposta. Tente novamente.");
+      console.error("Supabase error:", error.message);
+      return;
+    }
+    if (data) setParticipantes((prev) => [...prev, fromDB(data)]);
     setApostaEnviada(true);
   };
 
@@ -134,6 +144,7 @@ export default function BolaoPage() {
   const fecharApostar = () => {
     setMostrarApostar(false); setApostaNome(""); setApostaBrasil("");
     setApostaHaiti(""); setApostaCopied(false); setApostaEnviada(false);
+    setApostaErro(""); setApostaEnviando(false);
   };
 
   const copiarPix = () => {
@@ -750,12 +761,29 @@ export default function BolaoPage() {
                   </div>
 
                   {/* Botão enviar */}
+                  {/* Mensagem de erro */}
+                  {apostaErro && (
+                    <div className="bg-red-50 border border-red-300 text-red-700 text-sm font-semibold px-4 py-2 rounded-xl text-center">
+                      ⚠️ {apostaErro}
+                    </div>
+                  )}
+
                   <button
                     onClick={enviarAposta}
-                    disabled={!apostaNome.trim() || !apostaBrasil || !apostaHaiti}
-                    className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-black text-base py-3 rounded-xl transition-all shadow"
+                    disabled={!apostaNome.trim() || !apostaBrasil || !apostaHaiti || apostaEnviando}
+                    className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-black text-base py-3 rounded-xl transition-all shadow flex items-center justify-center gap-2"
                   >
-                    ✅ Confirmar Aposta
+                    {apostaEnviando ? (
+                      <>
+                        <svg className="animate-spin w-5 h-5" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                        </svg>
+                        Salvando...
+                      </>
+                    ) : (
+                      <>✅ Confirmar Aposta</>
+                    )}
                   </button>
                 </>
               ) : (
