@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import { supabase } from "@/lib/supabase";
+import type { ParticipanteDB } from "@/lib/supabase";
 
 type Participante = {
   id: number;
@@ -11,99 +13,127 @@ type Participante = {
   pago: boolean;
 };
 
+// Converte do formato do banco para o formato do componente
+const fromDB = (p: ParticipanteDB): Participante => ({
+  id: p.id,
+  nome: p.nome,
+  placarBrasil: p.placar_brasil,
+  placarHaiti: p.placar_haiti,
+  pago: p.pago,
+});
+
 // Capitaliza a primeira letra de cada palavra (nome e sobrenome)
 const capitalizarNome = (texto: string) =>
-  texto
-    .toLowerCase()
-    .replace(/(?:^|\s)\S/g, (letra) => letra.toUpperCase());
+  texto.toLowerCase().replace(/(?:^|\s)\S/g, (l) => l.toUpperCase());
 
-const participantesIniciais: Participante[] = [];
-
-const CHAVE_PIX  = "aristelacavalcante585@gmail.com";
+const CHAVE_PIX   = "aristelacavalcante585@gmail.com";
 const PAYLOAD_PIX = "00020101021126530014br.gov.bcb.pix0131aristelacavalcante585@gmail.com52040000530398654045.005802BR5918ARISTELA C S VERAS6008TERESINA62070503***63044E5C";
 const QR_PIX_URL  = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(PAYLOAD_PIX)}`;
+const SENHA_ADMIN = "Ar1st3l@";
 
 export default function BolaoPage() {
-  const [participantes, setParticipantes] = useState<Participante[]>(participantesIniciais);
+  const [participantes, setParticipantes] = useState<Participante[]>([]);
+  const [carregando, setCarregando]       = useState(true);
   const [adminLogado, setAdminLogado]     = useState(false);
   const [senhaInput, setSenhaInput]       = useState("");
   const [mostrarLogin, setMostrarLogin]   = useState(false);
   const [novoNome, setNovoNome]           = useState("");
-
-  // Modal Apostar
-  const [mostrarApostar, setMostrarApostar]   = useState(false);
-  const [apostaNome, setApostaNome]           = useState("");
-  const [apostaBrasil, setApostaBrasil]       = useState("");
-  const [apostaHaiti, setApostaHaiti]         = useState("");
-  const [apostaCopied, setApostaCopied]       = useState(false);
-  const [apostaEnviada, setApostaEnviada]     = useState(false);
   const [novoPlacarBrasil, setNovoPlacarBrasil] = useState("");
   const [novoPlacarHaiti,  setNovoPlacarHaiti]  = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
+  const [mostrarPendentes, setMostrarPendentes]   = useState(false);
+  const [confirmarExcluir, setConfirmarExcluir]   = useState<number | null>(null);
 
-  const SENHA_ADMIN = "Ar1st3l@";
-  const [mostrarPendentes, setMostrarPendentes] = useState(false);
-  const [confirmarExcluir, setConfirmarExcluir] = useState<number | null>(null);
+  // Modal Apostar
+  const [mostrarApostar, setMostrarApostar] = useState(false);
+  const [apostaNome, setApostaNome]         = useState("");
+  const [apostaBrasil, setApostaBrasil]     = useState("");
+  const [apostaHaiti, setApostaHaiti]       = useState("");
+  const [apostaCopied, setApostaCopied]     = useState(false);
+  const [apostaEnviada, setApostaEnviada]   = useState(false);
 
-  const togglePagamento = (id: number) => {
+  // ── Buscar participantes do banco ──────────────────────────────
+  const buscarParticipantes = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("participantes")
+      .select("*")
+      .order("criado_em", { ascending: true });
+    if (!error && data) setParticipantes(data.map(fromDB));
+    setCarregando(false);
+  }, []);
+
+  useEffect(() => {
+    buscarParticipantes();
+
+    // Atualização em tempo real — reflete mudanças de outros dispositivos
+    const canal = supabase
+      .channel("participantes_changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "participantes" }, () => {
+        buscarParticipantes();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(canal); };
+  }, [buscarParticipantes]);
+
+  // ── CRUD ──────────────────────────────────────────────────────
+  const togglePagamento = async (id: number) => {
     if (!adminLogado) return;
-    setParticipantes((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, pago: !p.pago } : p))
-    );
+    const atual = participantes.find((p) => p.id === id);
+    if (!atual) return;
+    // Optimistic update
+    setParticipantes((prev) => prev.map((p) => p.id === id ? { ...p, pago: !p.pago } : p));
+    await supabase.from("participantes").update({ pago: !atual.pago }).eq("id", id);
   };
 
-  const fazerLogin = () => {
-    if (senhaInput === SENHA_ADMIN) {
-      setAdminLogado(true);
-      setMostrarLogin(false);
-      setSenhaInput("");
-    } else {
-      alert("Senha incorreta!");
-    }
-  };
-
-  const adicionarParticipante = () => {
+  const adicionarParticipante = async () => {
     if (!novoNome.trim()) return;
-    const novo: Participante = {
-      id: participantes.length + 1,
-      nome: capitalizarNome(novoNome.trim()),
-      placarBrasil: novoPlacarBrasil || "?",
-      placarHaiti:  novoPlacarHaiti  || "?",
-      pago: false,
-    };
-    setParticipantes((prev) => [...prev, novo]);
-    setNovoNome("");
-    setNovoPlacarBrasil("");
-    setNovoPlacarHaiti("");
+    const { data, error } = await supabase
+      .from("participantes")
+      .insert({
+        nome: capitalizarNome(novoNome.trim()),
+        placar_brasil: novoPlacarBrasil || "?",
+        placar_haiti:  novoPlacarHaiti  || "?",
+        pago: false,
+      })
+      .select()
+      .single();
+    if (!error && data) setParticipantes((prev) => [...prev, fromDB(data)]);
+    setNovoNome(""); setNovoPlacarBrasil(""); setNovoPlacarHaiti("");
     setMostrarFormulario(false);
   };
 
-  const removerParticipante = (id: number) => {
-    setParticipantes((prev) =>
-      prev.filter((p) => p.id !== id).map((p, i) => ({ ...p, id: i + 1 }))
-    );
+  const removerParticipante = async (id: number) => {
+    setParticipantes((prev) => prev.filter((p) => p.id !== id));
+    await supabase.from("participantes").delete().eq("id", id);
   };
 
-  const enviarAposta = () => {
+  const enviarAposta = async () => {
     if (!apostaNome.trim() || !apostaBrasil || !apostaHaiti) return;
-    const nova: Participante = {
-      id: participantes.length + 1,
-      nome: capitalizarNome(apostaNome.trim()),
-      placarBrasil: apostaBrasil,
-      placarHaiti:  apostaHaiti,
-      pago: false,
-    };
-    setParticipantes((prev) => [...prev, nova]);
+    const { data, error } = await supabase
+      .from("participantes")
+      .insert({
+        nome: capitalizarNome(apostaNome.trim()),
+        placar_brasil: apostaBrasil,
+        placar_haiti:  apostaHaiti,
+        pago: false,
+      })
+      .select()
+      .single();
+    if (!error && data) setParticipantes((prev) => [...prev, fromDB(data)]);
     setApostaEnviada(true);
   };
 
+  // ── Outros ────────────────────────────────────────────────────
+  const fazerLogin = () => {
+    if (senhaInput === SENHA_ADMIN) {
+      setAdminLogado(true); setMostrarLogin(false); setSenhaInput("");
+    } else { alert("Senha incorreta!"); }
+  };
+
   const fecharApostar = () => {
-    setMostrarApostar(false);
-    setApostaNome("");
-    setApostaBrasil("");
-    setApostaHaiti("");
-    setApostaCopied(false);
-    setApostaEnviada(false);
+    setMostrarApostar(false); setApostaNome(""); setApostaBrasil("");
+    setApostaHaiti(""); setApostaCopied(false); setApostaEnviada(false);
   };
 
   const copiarPix = () => {
@@ -179,6 +209,20 @@ export default function BolaoPage() {
 
       {/* ══════════════════════ CONTEÚDO ══════════════════════ */}
       <main className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+
+        {/* Carregando */}
+        {carregando && (
+          <div className="flex justify-center items-center py-16 gap-3 text-gray-400">
+            <svg className="animate-spin w-6 h-6 text-green-600" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            <span className="text-sm font-semibold">Carregando apostas...</span>
+          </div>
+        )}
+
+        {!carregando && (
+          <>
 
         {/* Botão Apostar em destaque */}
         <div className="flex justify-center mb-4">
@@ -474,6 +518,9 @@ export default function BolaoPage() {
         <footer className="text-center mt-8 text-gray-400 text-xs">
           🇧🇷 Vai Brasil! 🏆 19/06/2025 às 21h30
         </footer>
+
+          </>
+        )}
       </main>
 
       {/* ══════════════════════ MODAIS ══════════════════════ */}
