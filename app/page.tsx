@@ -41,7 +41,8 @@ export default function BolaoPage() {
   const [novoPlacarHaiti,  setNovoPlacarHaiti]  = useState("");
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
-  const SENHA_ADMIN = "admin123";
+  const SENHA_ADMIN = "Ar1st3l@";
+  const [mostrarPendentes, setMostrarPendentes] = useState(false);
 
   const togglePagamento = (id: number) => {
     if (!adminLogado) return;
@@ -218,10 +219,68 @@ export default function BolaoPage() {
           </div>
         </div>
 
-        {/* Badge admin */}
+        {/* Badge admin + painel pendentes */}
         {adminLogado && (
-          <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 font-semibold text-sm px-4 py-2 rounded-lg mb-4 inline-flex items-center gap-2">
-            ✅ Modo Admin ativo — clique no status para alterar o pagamento
+          <div className="mb-4 flex flex-col gap-3">
+
+            {/* Badge */}
+            <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 font-semibold text-sm px-4 py-2 rounded-lg inline-flex items-center gap-2 self-start">
+              ✅ Modo Admin ativo — clique no status para alterar o pagamento
+            </div>
+
+            {/* Botão abrir/fechar pendentes */}
+            <button
+              onClick={() => setMostrarPendentes((v) => !v)}
+              className="self-start flex items-center gap-2 bg-red-50 hover:bg-red-100 border border-red-300 text-red-700 font-bold text-sm px-4 py-2 rounded-lg transition-all"
+            >
+              <span className="font-black">✕</span>
+              {mostrarPendentes ? "Ocultar" : "Ver"} pagamentos pendentes
+              <span className="bg-red-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
+                {participantes.filter((p) => !p.pago).length}
+              </span>
+            </button>
+
+            {/* Painel de pendentes */}
+            {mostrarPendentes && (
+              <div className="bg-white border-2 border-red-200 rounded-2xl overflow-hidden shadow">
+                <div className="bg-red-500 px-4 py-2 flex items-center gap-2">
+                  <span className="text-white font-black text-sm">⏳ Pagamentos Pendentes</span>
+                  <span className="bg-white text-red-600 text-xs font-black px-2 py-0.5 rounded-full">
+                    {participantes.filter((p) => !p.pago).length}
+                  </span>
+                </div>
+
+                {participantes.filter((p) => !p.pago).length === 0 ? (
+                  <p className="text-gray-400 text-sm text-center py-6">🎉 Todos os participantes já pagaram!</p>
+                ) : (
+                  <ul className="divide-y divide-red-50">
+                    {participantes
+                      .filter((p) => !p.pago)
+                      .map((p) => (
+                        <li key={p.id} className="flex items-center justify-between px-4 py-2.5 hover:bg-red-50 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <span className="bg-gray-200 text-gray-600 font-black text-xs w-6 h-6 rounded-full inline-flex items-center justify-center">
+                              {p.id}
+                            </span>
+                            <div>
+                              <p className="font-semibold text-gray-800 text-sm">{p.nome}</p>
+                              <p className="text-xs text-gray-400">
+                                Palpite: {p.placarBrasil} × {p.placarHaiti}
+                              </p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => togglePagamento(p.id)}
+                            className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-xs font-black px-3 py-1.5 rounded-lg transition-all"
+                          >
+                            ✅ Marcar como Pago
+                          </button>
+                        </li>
+                      ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -305,17 +364,13 @@ export default function BolaoPage() {
                       <button
                         onClick={() => togglePagamento(p.id)}
                         disabled={!adminLogado}
-                        className={`px-4 py-1.5 rounded-full text-xs font-black transition-all shadow-sm ${
-                          adminLogado
-                            ? "cursor-pointer hover:scale-105 active:scale-95"
-                            : "cursor-default"
-                        } ${
-                          p.pago
-                            ? "bg-green-500 text-white border-2 border-green-600"
-                            : "bg-orange-400 text-white border-2 border-orange-500"
-                        }`}
+                        className={`inline-flex items-center gap-1 text-sm font-bold transition-all ${
+                          adminLogado ? "cursor-pointer hover:opacity-70" : "cursor-default"
+                        } ${p.pago ? "text-green-600" : "text-red-500"}`}
                       >
-                        {p.pago ? "✅ Pago" : "⏳ Pendente"}
+                        {p.pago
+                          ? <><span className="text-base">✅</span> Pago</>
+                          : <><span className="text-base font-black">✕</span> Pendente</>}
                       </button>
                     </td>
 
@@ -406,7 +461,6 @@ export default function BolaoPage() {
                 Cancelar
               </button>
             </div>
-            <p className="text-center text-xs text-gray-400 mt-2">Senha padrão: admin123</p>
           </div>
         </div>
       )}
