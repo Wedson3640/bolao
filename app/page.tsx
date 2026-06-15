@@ -508,6 +508,23 @@ export default function BolaoPage() {
           </div>
         </div>
 
+        {/* Banner PIX */}
+        <div className="mt-4 bg-green-50 border-2 border-green-300 rounded-2xl px-4 py-3 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">💸</span>
+            <div>
+              <p className="text-green-800 font-black text-sm">Pague sua cota — R$ 5,00 via PIX</p>
+              <p className="text-gray-500 text-xs">Chave: <strong className="text-green-700 select-all">{CHAVE_PIX}</strong></p>
+            </div>
+          </div>
+          <button
+            onClick={() => { navigator.clipboard.writeText(CHAVE_PIX); }}
+            className="shrink-0 bg-green-600 hover:bg-green-700 active:scale-95 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow"
+          >
+            📋 Copiar chave PIX
+          </button>
+        </div>
+
         {/* Legenda */}
         <div className="mt-3 flex gap-3 justify-center flex-wrap text-gray-500 text-xs sm:text-sm">
           <div className="flex items-center gap-1">
