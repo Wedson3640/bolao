@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import type { ParticipanteDB } from "@/lib/supabase";
@@ -43,6 +43,9 @@ export default function BolaoPage() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [mostrarPendentes, setMostrarPendentes]   = useState(false);
   const [confirmarExcluir, setConfirmarExcluir]   = useState<number | null>(null);
+
+  // Ref para evitar duplo-envio (mais confiável que estado para guards de async)
+  const enviandoRef = useRef(false);
 
   // Modal Apostar
   const [mostrarApostar, setMostrarApostar] = useState(false);
@@ -111,9 +114,14 @@ export default function BolaoPage() {
   };
 
   const enviarAposta = async () => {
+    // Trava duplo-clique: ref atualiza imediatamente, estado não
+    if (enviandoRef.current) return;
     if (!apostaNome.trim() || !apostaBrasil || !apostaHaiti) return;
+
+    enviandoRef.current = true;
     setApostaEnviando(true);
     setApostaErro("");
+
     const { data, error } = await supabase
       .from("participantes")
       .insert({
@@ -124,13 +132,23 @@ export default function BolaoPage() {
       })
       .select()
       .single();
+
+    enviandoRef.current = false;
     setApostaEnviando(false);
+
     if (error) {
       setApostaErro("Erro ao salvar aposta. Tente novamente.");
       console.error("Supabase error:", error.message);
       return;
     }
-    if (data) setParticipantes((prev) => [...prev, fromDB(data)]);
+
+    // Adiciona apenas se o realtime ainda não trouxe o registro
+    if (data) {
+      setParticipantes((prev) =>
+        prev.some((p) => p.id === data.id) ? prev : [...prev, fromDB(data)]
+      );
+    }
+
     setApostaEnviada(true);
   };
 
