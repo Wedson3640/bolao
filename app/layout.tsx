@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "🏆 Bolão Brasil x Haiti — 19/06/2025",
-  description: "Bolão online Brasil x Haiti — 19 de Junho de 2025 às 21h30. Valor da cota: R$ 5,00",
+  title: "🏆 Bolão Brasil x Haiti — 19/06/2026",
+  description: "Bolão online Brasil x Haiti — 19 de Junho de 2026 às 21h30. Valor da cota: R$ 5,00",
 };
 
 export default function RootLayout({

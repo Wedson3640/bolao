@@ -30,7 +30,7 @@ const CHAVE_PIX      = "aristelacavalcante585@gmail.com";
 const PAYLOAD_PIX    = "00020101021126530014br.gov.bcb.pix0131aristelacavalcante585@gmail.com52040000530398654045.005802BR5918ARISTELA C S VERAS6008TERESINA62070503***63044E5C";
 const QR_PIX_URL     = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(PAYLOAD_PIX)}`;
 const SENHA_ADMIN    = "Ar1st3l@";
-const ENCERRAMENTO   = new Date("2025-06-19T21:25:00");
+const ENCERRAMENTO   = new Date("2026-06-19T21:25:00");
 
 // ── Componente auxiliar: painel de ganhadores ──────────────────
 function PainelGanhadores({
@@ -297,7 +297,7 @@ export default function BolaoPage() {
                 VS
               </span>
               <div className="text-center text-white font-semibold bg-green-900/40 rounded-md px-2 py-1 leading-5">
-                <div className="text-[11px]">📅 19/06/2025</div>
+                <div className="text-[11px]">📅 19/06/2026</div>
                 <div className="text-[11px]">🕙 21h30</div>
               </div>
             </div>
@@ -734,7 +734,7 @@ export default function BolaoPage() {
         </div>
 
         <footer className="text-center mt-8 text-gray-400 text-xs">
-          🇧🇷 Vai Brasil! 🏆 19/06/2025 às 21h30
+          🇧🇷 Vai Brasil! 🏆 19/06/2026 às 21h30
         </footer>
 
           </>
@@ -919,7 +919,7 @@ export default function BolaoPage() {
                       <li className="flex gap-2"><span>🏆</span><span><strong>25%</strong> da arrecadação vai para o admin pela organização.</span></li>
                       <li className="flex gap-2"><span>🎉</span><span><strong>75%</strong> rateados entre quem acertar o placar exato <strong>e tiver pago</strong>.</span></li>
                       <li className="flex gap-2"><span>⚠️</span><span>Apostas <strong>pendentes</strong> não concorrem ao prêmio.</span></li>
-                      <li className="flex gap-2"><span>📅</span><span>Prazo: <strong>19/06/2025 às 21h00</strong>.</span></li>
+                      <li className="flex gap-2"><span>📅</span><span>Prazo: <strong>19/06/2026 às 21h25</strong>.</span></li>
                     </ul>
                     <div className="mt-3 bg-white rounded-xl border border-amber-200 px-3 py-2 text-xs text-gray-500">
                       <p className="font-bold text-amber-700 mb-1">📊 {participantes.filter(p => p.pago).length} pagantes até agora:</p>
