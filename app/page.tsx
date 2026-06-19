@@ -32,6 +32,57 @@ const QR_PIX_URL     = `https://api.qrserver.com/v1/create-qr-code/?size=200x200
 const SENHA_ADMIN    = "Ar1st3l@";
 const ENCERRAMENTO   = new Date("2025-06-19T21:25:00");
 
+// ── Componente auxiliar: painel de ganhadores ──────────────────
+function PainelGanhadores({
+  resultado,
+  participantes,
+}: {
+  resultado: { brasil: string; haiti: string };
+  participantes: { id: number; nome: string; placarBrasil: string; placarHaiti: string; pago: boolean }[];
+}) {
+  const ganhadores = participantes.filter(
+    (p) => p.pago && p.placarBrasil === resultado.brasil && p.placarHaiti === resultado.haiti
+  );
+  const totalPago  = participantes.filter((p) => p.pago).length;
+  const premioPor  = ganhadores.length > 0
+    ? (totalPago * 5 * 0.75 / ganhadores.length).toFixed(2)
+    : "0,00";
+
+  return (
+    <div className="bg-yellow-50 border-2 border-yellow-400 rounded-2xl overflow-hidden shadow">
+      <div className="bg-yellow-500 px-4 py-2 flex items-center gap-2">
+        <span className="text-white font-black text-sm">
+          🏆 Resultado: Brasil {resultado.brasil} × {resultado.haiti} Haiti
+        </span>
+      </div>
+      {ganhadores.length === 0 ? (
+        <p className="text-gray-500 text-sm text-center py-4">😔 Ninguém acertou o placar exato.</p>
+      ) : (
+        <ul className="divide-y divide-yellow-100">
+          {ganhadores.map((p, i) => (
+            <li key={p.id} className="flex items-center gap-3 px-4 py-2.5 bg-yellow-50">
+              <span className="text-yellow-500 font-black text-lg">🥇</span>
+              <div>
+                <p className="font-black text-gray-800 text-sm">{p.nome}</p>
+                <p className="text-xs text-gray-400">Palpite: {p.placarBrasil} × {p.placarHaiti} ✅</p>
+              </div>
+              {i === 0 && (
+                <span className="ml-auto bg-yellow-400 text-yellow-900 text-xs font-black px-2 py-0.5 rounded-full">
+                  Ganhador!
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="px-4 py-2 bg-yellow-100 text-xs text-gray-600 flex justify-between">
+        <span>{ganhadores.length} ganhador{ganhadores.length !== 1 ? "es" : ""}</span>
+        <span className="font-bold text-green-700">R$ {premioPor} cada</span>
+      </div>
+    </div>
+  );
+}
+
 export default function BolaoPage() {
   const [participantes, setParticipantes] = useState<Participante[]>([]);
   const [carregando, setCarregando]       = useState(true);
@@ -79,6 +130,15 @@ export default function BolaoPage() {
   const [apostaEnviada, setApostaEnviada]   = useState(false);
   const [apostaErro, setApostaErro]         = useState("");
   const [apostaEnviando, setApostaEnviando] = useState(false);
+
+  // Apostas encerradas — feedback ao clicar após prazo
+  const [msgEncerrada, setMsgEncerrada] = useState(false);
+
+  // Resultado do jogo (admin)
+  const [mostrarResultado, setMostrarResultado] = useState(false);
+  const [resultBrasil, setResultBrasil]         = useState("");
+  const [resultHaiti, setResultHaiti]           = useState("");
+  const [resultado, setResultado]               = useState<{ brasil: string; haiti: string } | null>(null);
 
   // ── Buscar participantes do banco ──────────────────────────────
   const buscarParticipantes = useCallback(async () => {
@@ -323,13 +383,31 @@ export default function BolaoPage() {
           <>
 
         {/* Botão Apostar em destaque */}
-        <div className="flex justify-center mb-4">
+        <div className="flex flex-col items-center mb-4 gap-2">
           <button
-            onClick={() => setMostrarApostar(true)}
-            className="bg-yellow-400 hover:bg-yellow-300 active:scale-95 text-green-900 font-black text-base sm:text-lg px-8 sm:px-10 py-2.5 sm:py-3 rounded-2xl shadow-lg border-2 border-yellow-500 transition-all flex items-center gap-2"
+            onClick={() => {
+              if (countdown.encerrado) {
+                setMsgEncerrada(true);
+                setTimeout(() => setMsgEncerrada(false), 3000);
+                return;
+              }
+              setMostrarApostar(true);
+            }}
+            className={`font-black text-base sm:text-lg px-8 sm:px-10 py-2.5 sm:py-3 rounded-2xl shadow-lg border-2 transition-all flex items-center gap-2 active:scale-95 ${
+              countdown.encerrado
+                ? "bg-gray-300 border-gray-400 text-gray-500 cursor-not-allowed"
+                : "bg-yellow-400 hover:bg-yellow-300 border-yellow-500 text-green-900"
+            }`}
           >
-            🎯 Apostar Agora!
+            {countdown.encerrado ? "🔒 Apostas Encerradas" : "🎯 Apostar Agora!"}
           </button>
+
+          {/* Toast de encerramento */}
+          {msgEncerrada && (
+            <div className="animate-bounce bg-red-600 text-white font-black text-sm px-5 py-2 rounded-xl shadow-lg flex items-center gap-2">
+              🔒 As apostas foram encerradas às 21h25!
+            </div>
+          )}
         </div>
 
         {/* Barra de ações */}
@@ -338,6 +416,12 @@ export default function BolaoPage() {
           <div className="flex gap-2">
             {adminLogado ? (
               <>
+                <button
+                  onClick={() => setMostrarResultado(true)}
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold px-4 py-2 rounded-lg text-sm shadow transition-all flex items-center gap-1"
+                >
+                  🏆 Resultado
+                </button>
                 <button
                   onClick={() => setMostrarFormulario(true)}
                   className="bg-green-600 hover:bg-green-700 text-white font-bold px-4 py-2 rounded-lg text-sm shadow transition-all"
@@ -370,6 +454,12 @@ export default function BolaoPage() {
             <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 font-semibold text-sm px-4 py-2 rounded-lg inline-flex items-center gap-2 self-start">
               ✅ Modo Admin ativo — clique no status para alterar o pagamento
             </div>
+
+            {/* Banner de ganhadores — aparece quando o resultado for informado */}
+            {resultado && <PainelGanhadores
+              resultado={resultado}
+              participantes={participantes}
+            />}
 
             {/* Botão abrir/fechar pendentes */}
             <button
@@ -471,24 +561,36 @@ export default function BolaoPage() {
               </thead>
 
               <tbody>
-                {participantes.map((p, index) => (
+                {participantes.map((p, index) => {
+                  const ehGanhador = resultado != null
+                    && p.pago
+                    && p.placarBrasil === resultado.brasil
+                    && p.placarHaiti  === resultado.haiti;
+                  return (
                   <tr
                     key={p.id}
-                    className={`border-b border-gray-100 transition-colors ${
-                      index % 2 === 0 ? "bg-white" : "bg-gray-50"
+                    className={`border-b transition-colors ${
+                      ehGanhador
+                        ? "bg-yellow-100 border-yellow-300"
+                        : index % 2 === 0 ? "bg-white border-gray-100" : "bg-gray-50 border-gray-100"
                     } hover:bg-yellow-50`}
                   >
                     {/* # */}
                     <td className="px-2 sm:px-4 py-2 sm:py-3 text-center">
-                      <span className="bg-green-700 text-white font-black text-[10px] sm:text-xs w-5 h-5 sm:w-7 sm:h-7 rounded-full inline-flex items-center justify-center">
-                        {p.id}
+                      <span className={`font-black text-[10px] sm:text-xs w-5 h-5 sm:w-7 sm:h-7 rounded-full inline-flex items-center justify-center ${
+                        ehGanhador ? "bg-yellow-500 text-white" : "bg-green-700 text-white"
+                      }`}>
+                        {ehGanhador ? "🏆" : p.id}
                       </span>
                     </td>
 
                     {/* Nome */}
                     <td className="px-2 sm:px-4 py-2 sm:py-3">
-                      <span className="font-semibold text-gray-800 text-xs sm:text-sm leading-tight block max-w-[110px] sm:max-w-none">
+                      <span className={`font-semibold text-xs sm:text-sm leading-tight block max-w-[110px] sm:max-w-none ${
+                        ehGanhador ? "text-yellow-800 font-black" : "text-gray-800"
+                      }`}>
                         {p.nome}
+                        {ehGanhador && <span className="ml-1 text-yellow-500">✨</span>}
                       </span>
                     </td>
 
@@ -573,7 +675,8 @@ export default function BolaoPage() {
                       </td>
                     )}
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
 
               <tfoot>
@@ -886,6 +989,103 @@ export default function BolaoPage() {
               >
                 Cancelar
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══ Modal RESULTADO DO JOGO (admin) ══ */}
+      {mostrarResultado && adminLogado && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
+
+            {/* Cabeçalho */}
+            <div className="bg-yellow-500 rounded-t-2xl px-6 py-4 flex items-center justify-between">
+              <h3 className="text-white font-black text-xl">🏆 Resultado do Jogo</h3>
+              <button
+                onClick={() => setMostrarResultado(false)}
+                className="text-white/70 hover:text-white text-2xl font-bold leading-none"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="px-6 py-5 flex flex-col gap-4">
+              <p className="text-gray-500 text-sm text-center">
+                Informe o placar final para filtrar os ganhadores.
+              </p>
+
+              {/* Inputs de placar */}
+              <div className="flex items-center gap-3">
+                <div className="flex-1 flex flex-col items-center gap-1">
+                  <Image src="https://flagcdn.com/w40/br.png" alt="Brasil" width={36} height={24} className="rounded shadow" unoptimized />
+                  <span className="text-xs font-bold text-gray-600">Brasil</span>
+                  <input
+                    type="number" min="0" max="20" placeholder="0"
+                    value={resultBrasil}
+                    onChange={(e) => setResultBrasil(e.target.value)}
+                    className="w-full border-2 border-green-300 focus:border-green-600 rounded-xl px-3 py-2 text-center text-2xl font-black text-green-800 outline-none"
+                  />
+                </div>
+                <span className="text-gray-400 font-black text-2xl pb-4">×</span>
+                <div className="flex-1 flex flex-col items-center gap-1">
+                  <Image src="https://flagcdn.com/w40/ht.png" alt="Haiti" width={36} height={24} className="rounded shadow" unoptimized />
+                  <span className="text-xs font-bold text-gray-600">Haiti</span>
+                  <input
+                    type="number" min="0" max="20" placeholder="0"
+                    value={resultHaiti}
+                    onChange={(e) => setResultHaiti(e.target.value)}
+                    className="w-full border-2 border-blue-200 focus:border-blue-500 rounded-xl px-3 py-2 text-center text-2xl font-black text-blue-700 outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Preview de ganhadores */}
+              {resultBrasil !== "" && resultHaiti !== "" && (() => {
+                const n = participantes.filter(
+                  (p) => p.pago && p.placarBrasil === resultBrasil && p.placarHaiti === resultHaiti
+                ).length;
+                return (
+                  <div className={`rounded-xl px-4 py-2 text-center text-sm font-bold ${
+                    n > 0 ? "bg-green-50 text-green-700 border border-green-300"
+                          : "bg-red-50 text-red-600 border border-red-200"
+                  }`}>
+                    {n > 0 ? `🎉 ${n} ganhador${n !== 1 ? "es" : ""} encontrado${n !== 1 ? "s" : ""}!`
+                           : "😔 Nenhum apostador acertou esse placar."}
+                  </div>
+                );
+              })()}
+
+              {/* Botões */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    if (resultBrasil === "" || resultHaiti === "") return;
+                    setResultado({ brasil: resultBrasil, haiti: resultHaiti });
+                    setMostrarResultado(false);
+                  }}
+                  disabled={resultBrasil === "" || resultHaiti === ""}
+                  className="flex-1 bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-200 disabled:cursor-not-allowed text-white disabled:text-gray-400 font-black py-2.5 rounded-xl transition-all"
+                >
+                  ✅ Confirmar Resultado
+                </button>
+                <button
+                  onClick={() => { setMostrarResultado(false); setResultBrasil(""); setResultHaiti(""); }}
+                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2.5 rounded-xl transition-all"
+                >
+                  Cancelar
+                </button>
+              </div>
+
+              {/* Limpar resultado */}
+              {resultado && (
+                <button
+                  onClick={() => { setResultado(null); setResultBrasil(""); setResultHaiti(""); setMostrarResultado(false); }}
+                  className="text-center text-xs text-red-400 hover:text-red-600 underline"
+                >
+                  🗑️ Remover resultado atual (Brasil {resultado.brasil} × {resultado.haiti} Haiti)
+                </button>
+              )}
             </div>
           </div>
         </div>
