@@ -26,10 +26,11 @@ const fromDB = (p: ParticipanteDB): Participante => ({
 const capitalizarNome = (texto: string) =>
   texto.toLowerCase().replace(/(?:^|\s)\S/g, (l) => l.toUpperCase());
 
-const CHAVE_PIX   = "aristelacavalcante585@gmail.com";
-const PAYLOAD_PIX = "00020101021126530014br.gov.bcb.pix0131aristelacavalcante585@gmail.com52040000530398654045.005802BR5918ARISTELA C S VERAS6008TERESINA62070503***63044E5C";
-const QR_PIX_URL  = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(PAYLOAD_PIX)}`;
-const SENHA_ADMIN = "Ar1st3l@";
+const CHAVE_PIX      = "aristelacavalcante585@gmail.com";
+const PAYLOAD_PIX    = "00020101021126530014br.gov.bcb.pix0131aristelacavalcante585@gmail.com52040000530398654045.005802BR5918ARISTELA C S VERAS6008TERESINA62070503***63044E5C";
+const QR_PIX_URL     = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(PAYLOAD_PIX)}`;
+const SENHA_ADMIN    = "Ar1st3l@";
+const ENCERRAMENTO   = new Date("2025-06-19T21:25:00");
 
 export default function BolaoPage() {
   const [participantes, setParticipantes] = useState<Participante[]>([]);
@@ -46,6 +47,28 @@ export default function BolaoPage() {
 
   // Ref para evitar duplo-envio (mais confiável que estado para guards de async)
   const enviandoRef = useRef(false);
+
+  // ── Countdown regressivo ───────────────────────────────────────
+  const [countdown, setCountdown] = useState({ h: 0, m: 0, s: 0, encerrado: false });
+
+  useEffect(() => {
+    const tick = () => {
+      const diff = ENCERRAMENTO.getTime() - Date.now();
+      if (diff <= 0) {
+        setCountdown({ h: 0, m: 0, s: 0, encerrado: true });
+        return;
+      }
+      setCountdown({
+        h: Math.floor(diff / 3_600_000),
+        m: Math.floor((diff % 3_600_000) / 60_000),
+        s: Math.floor((diff % 60_000) / 1_000),
+        encerrado: false,
+      });
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
 
   // Modal Apostar
   const [mostrarApostar, setMostrarApostar] = useState(false);
@@ -233,6 +256,52 @@ export default function BolaoPage() {
             </div>
 
           </div>
+
+          {/* Countdown regressivo */}
+          <div className={`w-full max-w-sm mx-auto rounded-xl px-4 py-2 flex flex-col items-center gap-0.5 ${
+            countdown.encerrado
+              ? "bg-red-700/80 border border-red-400"
+              : "bg-black/30 border border-yellow-400/50"
+          }`}>
+            {countdown.encerrado ? (
+              <span className="text-white font-black text-sm tracking-wide">
+                🔒 Apostas encerradas!
+              </span>
+            ) : (
+              <>
+                <span className="text-yellow-300 text-[11px] font-bold uppercase tracking-widest">
+                  ⏳ Apostas encerram em
+                </span>
+                <div className="flex items-center gap-1.5">
+                  {/* Horas */}
+                  <div className="flex flex-col items-center">
+                    <span className="bg-green-900 text-white font-black text-xl w-10 h-10 rounded-lg flex items-center justify-center tabular-nums shadow">
+                      {String(countdown.h).padStart(2, "0")}
+                    </span>
+                    <span className="text-yellow-200 text-[9px] font-semibold mt-0.5">HORAS</span>
+                  </div>
+                  <span className="text-yellow-300 font-black text-xl pb-4">:</span>
+                  {/* Minutos */}
+                  <div className="flex flex-col items-center">
+                    <span className="bg-green-900 text-white font-black text-xl w-10 h-10 rounded-lg flex items-center justify-center tabular-nums shadow">
+                      {String(countdown.m).padStart(2, "0")}
+                    </span>
+                    <span className="text-yellow-200 text-[9px] font-semibold mt-0.5">MIN</span>
+                  </div>
+                  <span className="text-yellow-300 font-black text-xl pb-4">:</span>
+                  {/* Segundos */}
+                  <div className="flex flex-col items-center">
+                    <span className="bg-green-900 text-white font-black text-xl w-10 h-10 rounded-lg flex items-center justify-center tabular-nums shadow">
+                      {String(countdown.s).padStart(2, "0")}
+                    </span>
+                    <span className="text-yellow-200 text-[9px] font-semibold mt-0.5">SEG</span>
+                  </div>
+                </div>
+                <span className="text-white/60 text-[10px]">Prazo: 19/06 às 21h25</span>
+              </>
+            )}
+          </div>
+
         </div>
       </header>
 
