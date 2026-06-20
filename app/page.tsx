@@ -83,50 +83,56 @@ function PainelGanhadores({
   );
 }
 
-// ── Componente auxiliar: conteúdo do modal de ganhadores ──────
-type ParticipanteSimples = { id: number; nome: string; placarBrasil: string; placarHaiti: string; pago: boolean };
+// ── Histórico fixo: Ganhadores Brasil × Haiti (19/06/2026) ────
+const GANHADORES_BRASIL_HAITI = [
+  "Thais Siqueira",
+  "Laersio de Moura",
+  "Gilvan (HU)",
+  "Chico Helio",
+  "Jacô (cristiano)",
+  "Wesley Cavalcante",
+  "Tio Edilson",
+  "Daniel Alison",
+  "Antônio Cassiano",
+];
+const PREMIO_BRASIL_HAITI = "31,25";
 
-function ModalGanhadoresConteudo({
-  resultado,
-  participantes,
-}: {
-  resultado: { brasil: string; haiti: string };
-  participantes: ParticipanteSimples[];
-}) {
-  const ganhadores = participantes.filter(
-    (p) => p.pago && p.placarBrasil === resultado.brasil && p.placarHaiti === resultado.haiti
-  );
-  const totalPago = participantes.filter((p) => p.pago).length;
-  const premioPor = ganhadores.length > 0
-    ? (totalPago * 5 * 0.75 / ganhadores.length).toFixed(2)
-    : "0,00";
-
-  if (ganhadores.length === 0) return (
-    <div className="flex flex-col items-center gap-3 py-6 text-center">
-      <span className="text-5xl">😔</span>
-      <p className="text-gray-600 font-bold text-base">Ninguém acertou o placar exato.</p>
-      <p className="text-gray-400 text-sm">O prêmio de <strong>R$ {(totalPago * 5 * 0.75).toFixed(2)}</strong> não foi distribuído.</p>
-    </div>
-  );
-
+// ── Componente auxiliar: modal histórico Brasil × Haiti ────────
+function ModalGanhadoresConteudo() {
+  const medalhas = ["🥇", "🥈", "🥉"];
   return (
     <>
+      {/* Placar */}
+      <div className="flex items-center justify-center gap-4 py-2">
+        <div className="flex flex-col items-center gap-1">
+          <Image src="https://flagcdn.com/w40/br.png" alt="Brasil" width={40} height={27} className="rounded shadow" unoptimized />
+          <span className="text-green-700 font-black text-4xl">3</span>
+        </div>
+        <span className="text-gray-400 font-black text-2xl">×</span>
+        <div className="flex flex-col items-center gap-1">
+          <Image src="https://flagcdn.com/w40/ht.png" alt="Haiti" width={40} height={27} className="rounded shadow" unoptimized />
+          <span className="text-blue-600 font-black text-4xl">0</span>
+        </div>
+      </div>
+
+      {/* Resumo */}
       <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 flex justify-between items-center">
         <div>
-          <p className="text-green-700 font-black text-sm">💰 Prêmio total (75%)</p>
-          <p className="text-gray-500 text-xs">{ganhadores.length} ganhador{ganhadores.length !== 1 ? "es" : ""} — R$ {premioPor} cada</p>
+          <p className="text-green-700 font-black text-sm">🎉 {GANHADORES_BRASIL_HAITI.length} ganhadores acertaram 3 × 0</p>
+          <p className="text-gray-500 text-xs">Cada um recebeu R$ {PREMIO_BRASIL_HAITI}</p>
         </div>
-        <span className="text-green-700 font-black text-xl">R$ {(totalPago * 5 * 0.75).toFixed(2)}</span>
+        <span className="text-green-700 font-black text-lg">R$ {PREMIO_BRASIL_HAITI}</span>
       </div>
+
+      {/* Lista */}
       <div className="flex flex-col gap-2">
-        {ganhadores.map((p, i) => (
-          <div key={p.id} className="flex items-center gap-3 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-4 py-3">
-            <span className="text-2xl">{i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"}</span>
-            <div className="flex-1">
-              <p className="font-black text-gray-800">{p.nome}</p>
-              <p className="text-xs text-gray-500">Palpite: Brasil {p.placarBrasil} × {p.placarHaiti} Haiti ✅</p>
-            </div>
-            <span className="bg-yellow-400 text-yellow-900 font-black text-xs px-2 py-1 rounded-lg">R$ {premioPor}</span>
+        {GANHADORES_BRASIL_HAITI.map((nome, i) => (
+          <div key={nome} className="flex items-center gap-3 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-4 py-2.5">
+            <span className="text-xl">{medalhas[i] ?? "🏅"}</span>
+            <p className="font-black text-gray-800 flex-1">{nome}</p>
+            <span className="bg-yellow-400 text-yellow-900 font-black text-xs px-2 py-1 rounded-lg">
+              R$ {PREMIO_BRASIL_HAITI}
+            </span>
           </div>
         ))}
       </div>
@@ -1230,7 +1236,7 @@ export default function BolaoPage() {
                   <p className="text-gray-400 text-sm">Aguarde o admin informar o placar final.</p>
                 </div>
               ) : (
-                <ModalGanhadoresConteudo resultado={resultado} participantes={participantes} />
+                <ModalGanhadoresConteudo />
               )}
 
               <button
