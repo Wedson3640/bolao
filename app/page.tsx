@@ -1214,11 +1214,7 @@ export default function BolaoPage() {
             <div className="bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-t-2xl px-6 py-4 flex items-center justify-between">
               <div>
                 <h3 className="text-white font-black text-xl">🏆 Ganhadores Bolão BrasilxHaiti</h3>
-                {resultado && (
-                  <p className="text-yellow-100 text-xs mt-0.5">
-                    Resultado: Brasil {resultado.brasil} × {resultado.haiti} Haiti
-                  </p>
-                )}
+                <p className="text-yellow-100 text-xs mt-0.5">Resultado final: Brasil 3 × 0 Haiti</p>
               </div>
               <button
                 onClick={() => setMostrarGanhadores(false)}
@@ -1229,15 +1225,7 @@ export default function BolaoPage() {
             </div>
 
             <div className="px-6 py-5 flex flex-col gap-4">
-              {!resultado ? (
-                <div className="flex flex-col items-center gap-3 py-6 text-center">
-                  <span className="text-5xl">⏳</span>
-                  <p className="text-gray-600 font-bold text-base">Resultado ainda não foi divulgado.</p>
-                  <p className="text-gray-400 text-sm">Aguarde o admin informar o placar final.</p>
-                </div>
-              ) : (
-                <ModalGanhadoresConteudo />
-              )}
+              <ModalGanhadoresConteudo />
 
               <button
                 onClick={() => setMostrarGanhadores(false)}
