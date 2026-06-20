@@ -134,6 +134,9 @@ export default function BolaoPage() {
   // Apostas encerradas — feedback ao clicar após prazo
   const [msgEncerrada, setMsgEncerrada] = useState(false);
 
+  // Modal ganhadores (público)
+  const [mostrarGanhadores, setMostrarGanhadores] = useState(false);
+
   // Resultado do jogo (admin) — persistido no Supabase
   const [mostrarResultado, setMostrarResultado] = useState(false);
   const [resultBrasil, setResultBrasil]         = useState("");
@@ -417,25 +420,37 @@ export default function BolaoPage() {
         {!carregando && (
           <>
 
-        {/* Botão Apostar em destaque */}
+        {/* Botões principais */}
         <div className="flex flex-col items-center mb-4 gap-2">
-          <button
-            onClick={() => {
-              if (countdown.encerrado) {
-                setMsgEncerrada(true);
-                setTimeout(() => setMsgEncerrada(false), 3000);
-                return;
-              }
-              setMostrarApostar(true);
-            }}
-            className={`font-black text-base sm:text-lg px-8 sm:px-10 py-2.5 sm:py-3 rounded-2xl shadow-lg border-2 transition-all flex items-center gap-2 active:scale-95 ${
-              countdown.encerrado
-                ? "bg-gray-300 border-gray-400 text-gray-500 cursor-not-allowed"
-                : "bg-yellow-400 hover:bg-yellow-300 border-yellow-500 text-green-900"
-            }`}
-          >
-            {countdown.encerrado ? "🔒 Apostas Encerradas" : "🎯 Apostar Agora!"}
-          </button>
+          <div className="flex gap-3 flex-wrap justify-center">
+            <button
+              onClick={() => {
+                if (countdown.encerrado) {
+                  setMsgEncerrada(true);
+                  setTimeout(() => setMsgEncerrada(false), 3000);
+                  return;
+                }
+                setMostrarApostar(true);
+              }}
+              className={`font-black text-base sm:text-lg px-8 sm:px-10 py-2.5 sm:py-3 rounded-2xl shadow-lg border-2 transition-all flex items-center gap-2 active:scale-95 ${
+                countdown.encerrado
+                  ? "bg-gray-300 border-gray-400 text-gray-500 cursor-not-allowed"
+                  : "bg-yellow-400 hover:bg-yellow-300 border-yellow-500 text-green-900"
+              }`}
+            >
+              {countdown.encerrado ? "🔒 Apostas Encerradas" : "🎯 Apostar Agora!"}
+            </button>
+
+            {/* Botão Ver Ganhadores — aparece quando o admin definir o resultado */}
+            {resultado && (
+              <button
+                onClick={() => setMostrarGanhadores(true)}
+                className="bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-white font-black text-base sm:text-lg px-8 sm:px-10 py-2.5 sm:py-3 rounded-2xl shadow-lg border-2 border-yellow-600 transition-all flex items-center gap-2 animate-pulse"
+              >
+                🏆 Ver Ganhadores
+              </button>
+            )}
+          </div>
 
           {/* Toast de encerramento */}
           {msgEncerrada && (
@@ -1130,6 +1145,88 @@ export default function BolaoPage() {
                   🗑️ Remover resultado atual (Brasil {resultado.brasil} × {resultado.haiti} Haiti)
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══ Modal GANHADORES (público) ══ */}
+      {mostrarGanhadores && resultado && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md flex flex-col max-h-[90vh] overflow-y-auto">
+
+            {/* Cabeçalho */}
+            <div className="bg-gradient-to-r from-yellow-500 to-yellow-400 rounded-t-2xl px-6 py-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-white font-black text-xl">🏆 Ganhadores do Bolão</h3>
+                <p className="text-yellow-100 text-xs mt-0.5">
+                  Resultado: Brasil {resultado.brasil} × {resultado.haiti} Haiti
+                </p>
+              </div>
+              <button
+                onClick={() => setMostrarGanhadores(false)}
+                className="text-white/70 hover:text-white text-2xl font-bold leading-none"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="px-6 py-5 flex flex-col gap-4">
+              {(() => {
+                const ganhadores = participantes.filter(
+                  (p) => p.pago && p.placarBrasil === resultado.brasil && p.placarHaiti === resultado.haiti
+                );
+                const totalPago = participantes.filter((p) => p.pago).length;
+                const premioPor = ganhadores.length > 0
+                  ? (totalPago * 5 * 0.75 / ganhadores.length).toFixed(2)
+                  : "0,00";
+
+                if (ganhadores.length === 0) return (
+                  <div className="flex flex-col items-center gap-3 py-6 text-center">
+                    <span className="text-5xl">😔</span>
+                    <p className="text-gray-600 font-bold text-base">Ninguém acertou o placar exato.</p>
+                    <p className="text-gray-400 text-sm">O prêmio de <strong>R$ {(totalPago * 5 * 0.75).toFixed(2)}</strong> não foi distribuído.</p>
+                  </div>
+                );
+
+                return (
+                  <>
+                    {/* Resumo do prêmio */}
+                    <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 flex justify-between items-center">
+                      <div>
+                        <p className="text-green-700 font-black text-sm">💰 Prêmio total (75%)</p>
+                        <p className="text-gray-500 text-xs">{ganhadores.length} ganhador{ganhadores.length !== 1 ? "es" : ""} — R$ {premioPor} cada</p>
+                      </div>
+                      <span className="text-green-700 font-black text-xl">
+                        R$ {(totalPago * 5 * 0.75).toFixed(2)}
+                      </span>
+                    </div>
+
+                    {/* Lista de ganhadores */}
+                    <div className="flex flex-col gap-2">
+                      {ganhadores.map((p, i) => (
+                        <div key={p.id} className="flex items-center gap-3 bg-yellow-50 border-2 border-yellow-300 rounded-xl px-4 py-3">
+                          <span className="text-2xl">{i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"}</span>
+                          <div className="flex-1">
+                            <p className="font-black text-gray-800">{p.nome}</p>
+                            <p className="text-xs text-gray-500">Palpite: Brasil {p.placarBrasil} × {p.placarHaiti} Haiti ✅</p>
+                          </div>
+                          <span className="bg-yellow-400 text-yellow-900 font-black text-xs px-2 py-1 rounded-lg">
+                            R$ {premioPor}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                );
+              })()}
+
+              <button
+                onClick={() => setMostrarGanhadores(false)}
+                className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2.5 rounded-xl transition-all"
+              >
+                Fechar
+              </button>
             </div>
           </div>
         </div>
