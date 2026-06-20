@@ -26,8 +26,8 @@ const fromDB = (p: ParticipanteDB): Participante => ({
 const capitalizarNome = (texto: string) =>
   texto.toLowerCase().replace(/(?:^|\s)\S/g, (l) => l.toUpperCase());
 
-const CHAVE_PIX      = "aristelacavalcante585@gmail.com";
-const PAYLOAD_PIX    = "00020101021126530014br.gov.bcb.pix0131aristelacavalcante585@gmail.com52040000530398654045.005802BR5918ARISTELA C S VERAS6008TERESINA62070503***63044E5C";
+const CHAVE_PIX      = "07461094319";
+const PAYLOAD_PIX    = "00020101021226330014br.gov.bcb.pix01110746109431952040000530398654045.005802BR5917MARIANA V C SILVA6008TERESINA62070503***6304208D";
 const QR_PIX_URL     = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(PAYLOAD_PIX)}`;
 const SENHA_ADMIN    = "Ar1st3l@";
 const ENCERRAMENTO   = new Date("2026-06-24T18:55:00");
