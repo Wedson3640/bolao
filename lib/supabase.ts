@@ -14,3 +14,9 @@ export type ParticipanteDB = {
   pago: boolean;
   criado_em: string;
 };
+
+export type ResultadoJogoDB = {
+  id: number;
+  brasil: string | null;
+  haiti: string | null;
+};

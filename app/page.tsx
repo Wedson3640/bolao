@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
-import type { ParticipanteDB } from "@/lib/supabase";
+import type { ParticipanteDB, ResultadoJogoDB } from "@/lib/supabase";
 
 type Participante = {
   id: number;
@@ -134,7 +134,7 @@ export default function BolaoPage() {
   // Apostas encerradas — feedback ao clicar após prazo
   const [msgEncerrada, setMsgEncerrada] = useState(false);
 
-  // Resultado do jogo (admin)
+  // Resultado do jogo (admin) — persistido no Supabase
   const [mostrarResultado, setMostrarResultado] = useState(false);
   const [resultBrasil, setResultBrasil]         = useState("");
   const [resultHaiti, setResultHaiti]           = useState("");
@@ -163,6 +163,41 @@ export default function BolaoPage() {
 
     return () => { supabase.removeChannel(canal); };
   }, [buscarParticipantes]);
+
+  // ── Resultado do jogo — busca + realtime ──────────────────────
+  useEffect(() => {
+    const buscarResultado = async () => {
+      const { data } = await supabase
+        .from("resultado_jogo")
+        .select("*")
+        .eq("id", 1)
+        .single<ResultadoJogoDB>();
+      if (data?.brasil && data?.haiti) {
+        setResultado({ brasil: data.brasil, haiti: data.haiti });
+        setResultBrasil(data.brasil);
+        setResultHaiti(data.haiti);
+      } else {
+        setResultado(null);
+      }
+    };
+    buscarResultado();
+
+    const canal = supabase
+      .channel("resultado_changes")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "resultado_jogo" }, (payload) => {
+        const r = payload.new as ResultadoJogoDB;
+        if (r.brasil && r.haiti) {
+          setResultado({ brasil: r.brasil, haiti: r.haiti });
+          setResultBrasil(r.brasil);
+          setResultHaiti(r.haiti);
+        } else {
+          setResultado(null);
+        }
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(canal); };
+  }, []);
 
   // ── CRUD ──────────────────────────────────────────────────────
   const togglePagamento = async (id: number) => {
@@ -1059,9 +1094,12 @@ export default function BolaoPage() {
               {/* Botões */}
               <div className="flex gap-2">
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (resultBrasil === "" || resultHaiti === "") return;
-                    setResultado({ brasil: resultBrasil, haiti: resultHaiti });
+                    await supabase
+                      .from("resultado_jogo")
+                      .update({ brasil: resultBrasil, haiti: resultHaiti })
+                      .eq("id", 1);
                     setMostrarResultado(false);
                   }}
                   disabled={resultBrasil === "" || resultHaiti === ""}
@@ -1080,7 +1118,13 @@ export default function BolaoPage() {
               {/* Limpar resultado */}
               {resultado && (
                 <button
-                  onClick={() => { setResultado(null); setResultBrasil(""); setResultHaiti(""); setMostrarResultado(false); }}
+                  onClick={async () => {
+                    await supabase
+                      .from("resultado_jogo")
+                      .update({ brasil: null, haiti: null })
+                      .eq("id", 1);
+                    setResultBrasil(""); setResultHaiti(""); setMostrarResultado(false);
+                  }}
                   className="text-center text-xs text-red-400 hover:text-red-600 underline"
                 >
                   🗑️ Remover resultado atual (Brasil {resultado.brasil} × {resultado.haiti} Haiti)
