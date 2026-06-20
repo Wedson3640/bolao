@@ -30,7 +30,7 @@ const CHAVE_PIX      = "aristelacavalcante585@gmail.com";
 const PAYLOAD_PIX    = "00020101021126530014br.gov.bcb.pix0131aristelacavalcante585@gmail.com52040000530398654045.005802BR5918ARISTELA C S VERAS6008TERESINA62070503***63044E5C";
 const QR_PIX_URL     = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(PAYLOAD_PIX)}`;
 const SENHA_ADMIN    = "Ar1st3l@";
-const ENCERRAMENTO   = new Date("2026-06-19T21:25:00");
+const ENCERRAMENTO   = new Date("2026-06-24T18:55:00");
 
 // ── Componente auxiliar: painel de ganhadores ──────────────────
 function PainelGanhadores({
@@ -52,7 +52,7 @@ function PainelGanhadores({
     <div className="bg-yellow-50 border-2 border-yellow-400 rounded-2xl overflow-hidden shadow">
       <div className="bg-yellow-500 px-4 py-2 flex items-center gap-2">
         <span className="text-white font-black text-sm">
-          🏆 Resultado: Brasil {resultado.brasil} × {resultado.haiti} Haiti
+          🏆 Resultado: Brasil {resultado.brasil} × {resultado.haiti} Escócia
         </span>
       </div>
       {ganhadores.length === 0 ? (
@@ -335,17 +335,17 @@ export default function BolaoPage() {
                 VS
               </span>
               <div className="text-center text-white font-semibold bg-green-900/40 rounded-md px-2 py-1 leading-5">
-                <div className="text-[11px]">📅 19/06/2026</div>
-                <div className="text-[11px]">🕙 21h30</div>
+                <div className="text-[11px]">📅 24/06/2026</div>
+                <div className="text-[11px]">🕙 19h00</div>
               </div>
             </div>
 
-            {/* Haiti */}
+            {/* Escócia */}
             <div className="flex flex-col items-center gap-1">
-              <span className="text-white font-black text-sm tracking-wide drop-shadow">Haiti</span>
+              <span className="text-white font-black text-sm tracking-wide drop-shadow">Escócia</span>
               <Image
-                src="https://flagcdn.com/w160/ht.png"
-                alt="Bandeira do Haiti"
+                src="https://flagcdn.com/w160/gb-sct.png"
+                alt="Bandeira da Escócia"
                 width={96}
                 height={64}
                 className="rounded-lg shadow-md border-2 border-white/40 object-cover"
@@ -395,7 +395,7 @@ export default function BolaoPage() {
                     <span className="text-yellow-200 text-[9px] font-semibold mt-0.5">SEG</span>
                   </div>
                 </div>
-                <span className="text-white/60 text-[10px]">Prazo: 19/06 às 21h25</span>
+                <span className="text-white/60 text-[10px]">Prazo: 24/06 às 18h55</span>
               </>
             )}
           </div>
@@ -447,7 +447,7 @@ export default function BolaoPage() {
                 onClick={() => setMostrarGanhadores(true)}
                 className="bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-white font-black text-base sm:text-lg px-8 sm:px-10 py-2.5 sm:py-3 rounded-2xl shadow-lg border-2 border-yellow-600 transition-all flex items-center gap-2 animate-pulse"
               >
-                🏆 Ver Ganhadores
+                🏆 Ganhadores Bolão BrasilxHaiti
               </button>
             )}
           </div>
@@ -455,7 +455,7 @@ export default function BolaoPage() {
           {/* Toast de encerramento */}
           {msgEncerrada && (
             <div className="animate-bounce bg-red-600 text-white font-black text-sm px-5 py-2 rounded-xl shadow-lg flex items-center gap-2">
-              🔒 As apostas foram encerradas às 21h25!
+              🔒 As apostas foram encerradas às 18h55!
             </div>
           )}
         </div>
@@ -584,7 +584,7 @@ export default function BolaoPage() {
                     <div className="flex items-center justify-center gap-1">
                       <Image src="https://flagcdn.com/w40/br.png" alt="BR" width={18} height={12} className="rounded" unoptimized />
                       <span className="text-[10px]">×</span>
-                      <Image src="https://flagcdn.com/w40/ht.png" alt="HT" width={18} height={12} className="rounded" unoptimized />
+                      <Image src="https://flagcdn.com/w40/gb-sct.png" alt="SCT" width={18} height={12} className="rounded" unoptimized />
                     </div>
                   </th>
                   <th className="hidden sm:table-cell px-4 py-3 text-center font-black text-sm">
@@ -595,8 +595,8 @@ export default function BolaoPage() {
                   </th>
                   <th className="hidden sm:table-cell px-4 py-3 text-center font-black text-sm">
                     <div className="flex flex-col items-center gap-0.5">
-                      <Image src="https://flagcdn.com/w40/ht.png" alt="Haiti" width={28} height={19} className="rounded shadow" unoptimized />
-                      <span>Haiti</span>
+                      <Image src="https://flagcdn.com/w40/gb-sct.png" alt="Escócia" width={28} height={19} className="rounded shadow" unoptimized />
+                      <span>Escócia</span>
                     </div>
                   </th>
 
@@ -784,7 +784,7 @@ export default function BolaoPage() {
         </div>
 
         <footer className="text-center mt-8 text-gray-400 text-xs">
-          🇧🇷 Vai Brasil! 🏆 19/06/2026 às 21h30
+          🇧🇷 Vai Brasil! 🏆 24/06/2026 às 19h00
         </footer>
 
           </>
@@ -879,8 +879,8 @@ export default function BolaoPage() {
                       <span className="text-gray-400 font-black text-2xl pb-4">×</span>
                       {/* Haiti */}
                       <div className="flex-1 flex flex-col items-center gap-1">
-                        <Image src="https://flagcdn.com/w40/ht.png" alt="Haiti" width={36} height={24} className="rounded shadow" unoptimized />
-                        <span className="text-xs font-bold text-gray-600">Haiti</span>
+                        <Image src="https://flagcdn.com/w40/gb-sct.png" alt="Escócia" width={36} height={24} className="rounded shadow" unoptimized />
+                        <span className="text-xs font-bold text-gray-600">Escócia</span>
                         <input
                           type="number" min="0" max="20" placeholder="0"
                           value={apostaHaiti}
@@ -930,7 +930,7 @@ export default function BolaoPage() {
                       <strong>{apostaNome}</strong> —{" "}
                       <strong className="text-green-700">Brasil {apostaBrasil}</strong>
                       {" × "}
-                      <strong className="text-blue-700">Haiti {apostaHaiti}</strong>
+                      <strong className="text-blue-700">Escócia {apostaHaiti}</strong>
                     </p>
                   </div>
 
@@ -969,7 +969,7 @@ export default function BolaoPage() {
                       <li className="flex gap-2"><span>🏆</span><span><strong>25%</strong> da arrecadação vai para o admin pela organização.</span></li>
                       <li className="flex gap-2"><span>🎉</span><span><strong>75%</strong> rateados entre quem acertar o placar exato <strong>e tiver pago</strong>.</span></li>
                       <li className="flex gap-2"><span>⚠️</span><span>Apostas <strong>pendentes</strong> não concorrem ao prêmio.</span></li>
-                      <li className="flex gap-2"><span>📅</span><span>Prazo: <strong>19/06/2026 às 21h25</strong>.</span></li>
+                      <li className="flex gap-2"><span>📅</span><span>Prazo: <strong>24/06/2026 às 18h55</strong>.</span></li>
                     </ul>
                     <div className="mt-3 bg-white rounded-xl border border-amber-200 px-3 py-2 text-xs text-gray-500">
                       <p className="font-bold text-amber-700 mb-1">📊 {participantes.filter(p => p.pago).length} pagantes até agora:</p>
@@ -1016,7 +1016,7 @@ export default function BolaoPage() {
                 />
               </div>
               <div className="flex-1">
-                <label className="text-xs text-gray-500 font-semibold block mb-1">🇭🇹 Placar Haiti</label>
+                <label className="text-xs text-gray-500 font-semibold block mb-1">🏴󠁧󠁢󠁳󠁣󠁴󠁿 Placar Escócia</label>
                 <input
                   type="number"
                   placeholder="Ex: 0"
@@ -1079,7 +1079,7 @@ export default function BolaoPage() {
                 </div>
                 <span className="text-gray-400 font-black text-2xl pb-4">×</span>
                 <div className="flex-1 flex flex-col items-center gap-1">
-                  <Image src="https://flagcdn.com/w40/ht.png" alt="Haiti" width={36} height={24} className="rounded shadow" unoptimized />
+                  <Image src="https://flagcdn.com/w40/gb-sct.png" alt="Haiti" width={36} height={24} className="rounded shadow" unoptimized />
                   <span className="text-xs font-bold text-gray-600">Haiti</span>
                   <input
                     type="number" min="0" max="20" placeholder="0"
@@ -1142,7 +1142,7 @@ export default function BolaoPage() {
                   }}
                   className="text-center text-xs text-red-400 hover:text-red-600 underline"
                 >
-                  🗑️ Remover resultado atual (Brasil {resultado.brasil} × {resultado.haiti} Haiti)
+                  🗑️ Remover resultado atual (Brasil {resultado.brasil} × {resultado.haiti} Escócia)
                 </button>
               )}
             </div>
@@ -1160,7 +1160,7 @@ export default function BolaoPage() {
               <div>
                 <h3 className="text-white font-black text-xl">🏆 Ganhadores do Bolão</h3>
                 <p className="text-yellow-100 text-xs mt-0.5">
-                  Resultado: Brasil {resultado.brasil} × {resultado.haiti} Haiti
+                  Resultado: Brasil {resultado.brasil} × {resultado.haiti} Escócia
                 </p>
               </div>
               <button
@@ -1209,7 +1209,7 @@ export default function BolaoPage() {
                           <span className="text-2xl">{i === 0 ? "🥇" : i === 1 ? "🥈" : "🥉"}</span>
                           <div className="flex-1">
                             <p className="font-black text-gray-800">{p.nome}</p>
-                            <p className="text-xs text-gray-500">Palpite: Brasil {p.placarBrasil} × {p.placarHaiti} Haiti ✅</p>
+                            <p className="text-xs text-gray-500">Palpite: Brasil {p.placarBrasil} × {p.placarHaiti} Escócia ✅</p>
                           </div>
                           <span className="bg-yellow-400 text-yellow-900 font-black text-xs px-2 py-1 rounded-lg">
                             R$ {premioPor}
