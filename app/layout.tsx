@@ -15,6 +15,17 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "🏆 Bolão Brasil x Escócia — 24/06/2026",
   description: "Bolão online Brasil x Escócia — 24 de Junho de 2026 às 19h00. Valor da cota: R$ 5,00",
+  openGraph: {
+    title: "🏆 Bolão Brasil x Escócia — 24/06/2026",
+    description: "Participe do bolão! Jogo dia 24/06 às 19h00. Cota: R$ 5,00 💰",
+    type: "website",
+    locale: "pt_BR",
+  },
+  twitter: {
+    card: "summary",
+    title: "🏆 Bolão Brasil x Escócia — 24/06/2026",
+    description: "Participe do bolão! Jogo dia 24/06 às 19h00. Cota: R$ 5,00 💰",
+  },
 };
 
 export default function RootLayout({
