@@ -477,35 +477,25 @@ export default function BolaoPage() {
         {!carregando && (
           <>
 
-        {/* Botões principais */}
+        {/* Botão Apostar em destaque */}
         <div className="flex flex-col items-center mb-4 gap-2">
-          <div className="flex gap-3 flex-wrap justify-center">
-            <button
-              onClick={() => {
-                if (countdown.encerrado) {
-                  setMsgEncerrada(true);
-                  setTimeout(() => setMsgEncerrada(false), 3000);
-                  return;
-                }
-                setMostrarApostar(true);
-              }}
-              className={`font-black text-base sm:text-lg px-8 sm:px-10 py-2.5 sm:py-3 rounded-2xl shadow-lg border-2 transition-all flex items-center gap-2 active:scale-95 ${
-                countdown.encerrado
-                  ? "bg-gray-300 border-gray-400 text-gray-500 cursor-not-allowed"
-                  : "bg-yellow-400 hover:bg-yellow-300 border-yellow-500 text-green-900"
-              }`}
-            >
-              {countdown.encerrado ? "🔒 Apostas Encerradas" : "🎯 Apostar Agora!"}
-            </button>
-
-            {/* Botão Ganhadores — sempre visível para o público */}
-            <button
-              onClick={() => setMostrarGanhadores(true)}
-              className="bg-yellow-500 hover:bg-yellow-400 active:scale-95 text-white font-black text-base sm:text-lg px-6 sm:px-8 py-2.5 sm:py-3 rounded-2xl shadow-lg border-2 border-yellow-600 transition-all flex items-center gap-2"
-            >
-              🏆 Ganhadores Bolão BrasilxHaiti
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              if (countdown.encerrado) {
+                setMsgEncerrada(true);
+                setTimeout(() => setMsgEncerrada(false), 3000);
+                return;
+              }
+              setMostrarApostar(true);
+            }}
+            className={`font-black text-base sm:text-lg px-8 sm:px-10 py-2.5 sm:py-3 rounded-2xl shadow-lg border-2 transition-all flex items-center gap-2 active:scale-95 ${
+              countdown.encerrado
+                ? "bg-gray-300 border-gray-400 text-gray-500 cursor-not-allowed"
+                : "bg-yellow-400 hover:bg-yellow-300 border-yellow-500 text-green-900"
+            }`}
+          >
+            {countdown.encerrado ? "🔒 Apostas Encerradas" : "🎯 Apostar Agora!"}
+          </button>
 
           {/* Toast de encerramento */}
           {msgEncerrada && (
@@ -518,7 +508,14 @@ export default function BolaoPage() {
         {/* Barra de ações */}
         <div className="flex justify-between items-center mb-3 flex-wrap gap-2">
           <h2 className="text-gray-700 text-base sm:text-xl font-bold">📋 Planilha</h2>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            {/* Botão ganhadores — mesma altura dos botões admin */}
+            <button
+              onClick={() => setMostrarGanhadores(true)}
+              className="bg-yellow-500 hover:bg-yellow-600 active:scale-95 text-white font-bold px-3 py-2 rounded-lg text-sm shadow transition-all flex items-center gap-1 border border-yellow-600"
+            >
+              🏆 <span className="hidden sm:inline">Ganhadores BrasilxHaiti</span><span className="sm:hidden">Ganhadores</span>
+            </button>
             {adminLogado ? (
               <>
                 <button
